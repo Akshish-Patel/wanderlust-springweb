@@ -1,0 +1,138 @@
+<div th:replace="layouts/boilerplate :: boilerplate">...</div>
+<style>
+	.column {
+		margin: auto;
+	}
+</style>
+
+<body>
+	<div th:replace="includs/navbar:: header">...</div>
+	<div th:replace="includs/flash:: flash">...</div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-md-7 column">
+				<h3 th:text="${listing.title}"></h3>
+				<br>
+				<div class="card listing-card">
+					<img class="card-img-top" th:src="${listing.image}" alt="Listing images" style="height: 13rem;">
+					<div class="card-body">
+						<p>Owned by <b th:text="${listing.user.username}"></b></p>
+						<li th:text="${listing.description}"></li>
+						<li>&#8377;<span th:text="${listing.price}"></span> / night
+						</li>
+						<li th:text="${listing.location}"></li>
+						<li th:text="${listing.country}"></li> <br>
+
+						<div th:if="${login == 'true' && owner == 'true'}">
+							<a th:href="'/listing/' + ${listing.id} + '/update'" class="btn button">Edit</a>
+							<a th:href="'/listing/' + ${listing.id} + '/delete'"
+								class="btn btn-delete button">Delete</a>
+						</div>
+
+					</div>
+
+					<hr>
+
+					<div th:if="${login == 'true'}">
+						<h4 class="ms-2">Leave Review</h4>
+						<form th:action="'/listing/' + ${listing.id} + '/review'" method="post"
+							class="ms-2 mb-3 needs-validation" novalidate>
+							<!-- <div class="form-group mb-3">
+								<label for="rating">Rating</label> <input type="range" required id="rating"
+									class="form-range" name="rating" min="1" max="5">
+								<div class="invalid-feedback">Title is Required!</div>
+							</div> -->
+
+
+							<div class="form-group mb-3">
+								<fieldset class="starability-slot ">
+									<legend>Rating</legend>
+
+									<input type="radio" id="no-rate" class="input-no-rate" name="rating" value="1"
+										checked aria-label="No rating." />
+									<input type="radio" id="first-rate1" name="rating" value="1" />
+									<label for="first-rate1" title="Terrible">1 star</label>
+									<input type="radio" id="first-rate2" name="rating" value="2" />
+									<label for="first-rate2" title="Not good">2 stars</label>
+									<input type="radio" id="first-rate3" name="rating" value="3" />
+									<label for="first-rate3" title="Average">3 stars</label>
+									<input type="radio" id="first-rate4" name="rating" value="4" />
+									<label for="first-rate4" title="Very good">4 stars</label>
+									<input type="radio" id="first-rate5" name="rating" value="5" />
+									<label for="first-rate5" title="Amazing">5 stars</label>
+								</fieldset>
+							</div>
+
+							<div class="form-group mb-3">
+								<label for="comments">Comment</label>
+								<textarea name="comment" id="comment" class="form-control" required></textarea>
+								<div class="invalid-feedback">Comment is Required!</div>
+							</div>
+
+							<button class="btn btn-outline-dark">Submit</button>
+						</form>
+
+					</div>
+					<hr>
+					<div th:if="${listing.reviewList.size} > 0">
+						<h4 class="ms-2">All Reviews</h4>
+						<div class="row review-row">
+
+
+							<div th:each="review : ${listing.reviewList}" class="card review-card col-md-5 ps-2 pt-1">
+								<h5 class="card-title" th:text="${'@'+review.user.username}"></h5>
+								<p class="card-text" th:text="${review.comment}"></p>
+								<!-- <p class="card-text" th:text="${review.rating} + ' Stars'"></p> -->
+								<p class="starability-result mt-0" th:attr="data-rating=${review.rating}">Rated: <%=
+										review.rating%>Rated: <span th:text="${review.rating}">0</span> stars stars</p>
+								<div th:if="${login == 'true' && review.user == currentUser}">
+									<a th:href="'/listing/' + ${listing.id} + '/review/' + ${review.id}"
+										class="btn btn-dark review-delete-btn">Delete</a>
+								</div>
+
+							</div>
+
+
+						</div>
+					</div>
+
+					<hr>
+
+					<h3>Where you'll be</h3>
+					<div id="map"></div>
+					<script th:inline="javascript">
+
+						/*<![CDATA[*/
+						var coordinate = /*[[${listing.coordinate}]]*/ {};
+						let coordinates = coordinate.split(",");
+						/*]]>*/
+						
+						console.log(coordinate);
+						
+						mapboxgl.accessToken = "pk.eyJ1IjoiYWtzaGlzaDIwMDIiLCJhIjoiY20ydmV6NDFnMGEzcDJqczRraHdtcnQ1MyJ9.rhOsJDioA5UpIF_uXEF_Gg";
+						const map = new mapboxgl.Map({
+							container: 'map', // container ID
+							center: [coordinates[0], coordinates[1]], // starting position [lng, lat]. Note that lat must be set between -90 and 90
+							zoom: 9 // starting zoom
+						});
+
+						const marker = new mapboxgl.Marker({color: "red"}).setLngLat([coordinates[0], coordinates[1]]).setPopup(
+							new mapboxgl.Popup({offset: 25}).setHTML(
+								"<h4></h4><p>Exact Location provided after booking</p>"
+							)
+						).addTo(map);
+					</script>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div th:replace="includs/footer :: footer">...</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+		crossorigin="anonymous"></script>
+</body>
+
+</html>
